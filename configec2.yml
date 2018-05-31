@@ -1,0 +1,6 @@
+---
+- name: setup environment config
+  hosts: "localhost"
+  roles:
+  - { role: configec2 }
+  connection: local

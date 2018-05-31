@@ -1,0 +1,8 @@
+---
+
+- name: get list of files
+  shell: "ls -l /home/"
+  register: commit_files
+
+- debug: var=commit_files
+
