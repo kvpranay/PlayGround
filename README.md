@@ -1,2 +1,4 @@
 # ansible_awsec2
-Repo to create ec2 instance using ansible
+# Author: Pranay Katta
+# Role: Devops Lead
+# Comments: This is created to test ansible playbook that creates ec2 instance

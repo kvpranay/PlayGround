@@ -1,8 +1,9 @@
 ---
 
-- name: get list of files
-  shell: "ls -l /home/"
-  register: commit_files
+- include: config-ec2.yml
+#- include: config-dockerce.yml
+#- include: config-nginxcontainer.yml
+#- include: verify-container.yml
+#- include: monitor-container.yml 
 
-- debug: var=commit_files
 
