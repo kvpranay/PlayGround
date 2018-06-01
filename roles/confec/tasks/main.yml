@@ -57,9 +57,9 @@
       with_items: "{{ ec2.instances }}"
 
     - name: Ensure firewall is enabled
-      yum: 
-	 name: firewalld
-	 state: present 
-	 enabled: yes
+      yum:
+        name: firewalld
+        state: present
+        enabled: yes
 
 
