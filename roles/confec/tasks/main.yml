@@ -21,7 +21,6 @@
   hosts: localhost
   gather_facts: False
   vars:
-    ec2name: mttestEC2
     key_name: gwkeys
     instance_type: t2.micro
     security_group: connectmycloud
@@ -34,7 +33,6 @@
       ec2:
          key_name: "{{ key_name }}"
          group: "{{ security_group }}"
-         instance_type: "{{ instance_type }}"
          image: "{{ image }}"
          instance_profile_name: "{{ ec2name }}"
          wait: true
