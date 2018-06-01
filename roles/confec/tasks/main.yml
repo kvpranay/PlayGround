@@ -60,6 +60,8 @@
       yum:
         name: firewalld
         state: present
-        enabled: yes
+      service:
+	name: firewalld
+	state: started
 
 
