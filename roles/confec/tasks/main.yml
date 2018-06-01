@@ -1,28 +1,38 @@
 ---
 
-- ec2:
-    key_name: gwkeys
-    instance_type: t2.micro
-    image: ami-67589505
-    wait: yes
-    group: DefaultServerGroup
-    count: 1
-    region: ap-southeast-2
-    vpc_subnet_id: subnet-ea500f8d
-    assign_public_ip: yes
-    instance_tags:
-       webservers: app1
-    
-#- name: Create The Instance
-#  hosts: localhost
-#  gather_facts: False
-#  vars:
-#    key_name: gwkeys
-#    instance_type: t2.micro
-#    security_group: DefaultServerGroup
-#    image: ami-67589505
-#    region: ap-southeast-2
+- name: Create Ec2 Instance
+  tasks:
+    - name: Launch Instance
+      ec2:
+      key_name: gwkeys
+      instance_type: t2.micro
+      image: ami-67589505
+      wait: yes
+      group: DefaultServerGroup
+      count: 1
+      region: ap-southeast-2
+      vpc_subnet_id: subnet-ea500f8d
+      assign_public_ip: yes
+      instance_tags:
+         webservers: app1
 
+#- hosts: localhost
+#  connection: local
+#  gather_facts: False
+#  tasks:
+#    - name: Provision a set of instances
+#      ec2:
+#         key_name: my_key
+#         group: test
+#         instance_type: t2.micro
+#         image: ap-southeast-2
+#         wait: true
+#         exact_count: 1
+#         count_tag:
+#            Name: Webserver1
+#         instance_tags:
+#            Name: Webservers
+#      register: ec2
 
 #- name: Create my instance
 #  hosts: localhost
