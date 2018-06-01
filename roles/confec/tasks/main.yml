@@ -58,7 +58,8 @@
 
 - name: Configure Instance
   hosts: launched
-  remote_user: root
+  remote_user: ec2-user
+  private_key_file: /root/.ssh/gwkeys.pem
 
   tasks:
     - name: Install Firewalld
