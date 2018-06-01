@@ -55,9 +55,11 @@
         timeout: 320
         state: started
       with_items: "{{ ec2.instances }}"
-    
-    - name: Ensure firewall service is up and running
-      yum: name=firewalld state=present enabled=yes
-      when: rpm_check_firewalld.stdout.find('is not installed') != -1
+
+    - name: Ensure firewall is enabled
+      yum: 
+	 name: firewalld
+	 state: present 
+	 enabled: yes
 
 
