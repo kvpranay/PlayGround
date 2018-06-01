@@ -56,10 +56,17 @@
         state: started
       with_items: "{{ ec2.instances }}"
 
-    - name: Ensure firewall is enabled
+- name: Configure Instance
+  hosts: launched
+  remote_user: root
+
+  tasks:
+    - name: Install Firewalld
       yum:
         name: firewalld
         state: present
+
+    - name: Ensure firewall is enabled
       service:
           name: firewalld
           state: started
