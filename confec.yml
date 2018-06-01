@@ -1,6 +1,8 @@
 ---
 - name: setup environment config
-  hosts: "localhost"
+  hosts: localhost
+  su: yes
+  su: root
   roles:
   - { role: confec }
   connection: local
