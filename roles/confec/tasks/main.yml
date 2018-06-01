@@ -34,7 +34,6 @@
          key_name: "{{ key_name }}"
          group: "{{ security_group }}"
          image: "{{ image }}"
-         instance_profile_name: "{{ ec2name }}"
          wait: true
          region: "{{ region }}"
          vpc_subnet_id: "{{ subnetid }}"
@@ -58,17 +57,20 @@
 
 - name: Configure Instance
   hosts: launched
-  remote_user: ec2-user
+  remote_user: ec-user
 
   tasks:
     - name: Install Firewalld
       yum:
         name: firewalld
         state: present
+      become: yes
+      become_user: root
 
     - name: Ensure firewall is enabled
       service:
           name: firewalld
           state: started
-
+      become: yes
+      become_user: root  
 
