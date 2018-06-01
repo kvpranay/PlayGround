@@ -21,12 +21,13 @@
   hosts: localhost
   gather_facts: False
   vars:
-    name: mttestEC2
+    ec2name: mttestEC2
     key_name: gwkeys
     instance_type: t2.micro
     security_group: connectmycloud
     image: ami-67589505
     region: ap-southeast-2
+    name: MyEc2
     subnetid: subnet-ea500f8d
   tasks:
     - name: Launch instance
@@ -35,6 +36,7 @@
          group: "{{ security_group }}"
          instance_type: "{{ instance_type }}"
          image: "{{ image }}"
+	 instance_profile_name: "{{ ec2name }}"
          wait: true
          region: "{{ region }}"
          vpc_subnet_id: "{{ subnetid }}"
@@ -58,7 +60,7 @@
 
 - name: Configure Instance
   hosts: launched
-  remote_user: root
+  remote_user: ec2-user
 
   tasks:
     - name: Install Firewalld
