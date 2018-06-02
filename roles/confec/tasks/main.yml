@@ -1,8 +1,15 @@
 ---
 
-- include_vars:
-    dir: group_vars
-    extensions: ['yml']
-
 # Provision and Configure EC2 Instance
 - include: configEc2.yml
+
+# Congigure Docker Container
+- include: configDocker.yml
+
+# Deploy Nginx and check nginx
+- include: configNginx.yml
+
+# Monitor Continer
+- include: monitorContainer.yml
+
+
