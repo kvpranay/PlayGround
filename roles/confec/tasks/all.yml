@@ -14,9 +14,9 @@ nginx_published_ports:
   - '80:80'
 
 nginx_exposed_volumes:
-  - "{{ nginx_base_directory }}/nginx.conf:/etc/nginx/nginx.conf:ro"
-  - "{{ nginx_base_directory }}/defaults:/usr/share/nginx/html:ro"
-  - "{{ nginx_reverse_proxy_config_directory }}:/etc/nginx/conf.d:ro"
+  - "/tmp/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+  - "/tmp/nginx/defaults:/usr/share/nginx/html:ro"
+  - "/tmp/nginx/conf.d:/etc/nginx/conf.d:ro"
 
 nginx_conf: |
   user root;
