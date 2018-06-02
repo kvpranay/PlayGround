@@ -9,8 +9,10 @@
   tasks:
     - name: Import Docker CE repository gpg key
       rpm_key:
-    	key: https://download.docker.com/linux/centos/gpg
+        key: https://download.docker.com/linux/centos/gpg
         state: present
+      become: yes
+      become_user: root
 
     - name: Add Docker CE repository
       get_url:
@@ -20,16 +22,32 @@
         owner: root
         group: root
         mode: 0644
+      become: yes
+      become_user: root
+
+    - name: install Docker Prerequisites
+      yum:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - "yum-utils"
+        - "device-mapper-persistent-data"
+        - "lvm2"
 
     - name: Install Docker CE
       yum:
         name: docker-ce
-    	state: present
-    	update_cache: yes
+        state: present
+        update_cache: yes
+      become: yes
+      become_user: root
 
     - name: Enable Docker CE service on startup
       service:
-    	name: docker
-    	state: started
-    	enabled: yes
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+      become_user: root
     
