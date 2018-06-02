@@ -1,10 +1,8 @@
 ---
-- name: include variables
-  include_vars: 
+
+- include_vars:
     dir: group_vars
-    extensions:
-      - yml
-      - json
+    extensions: ['yml']
 
 # Provision and Configure EC2 Instance
 - include: configEc2.yml
