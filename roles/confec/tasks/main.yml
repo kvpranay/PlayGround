@@ -7,9 +7,9 @@
 - include: configDocker.yml
 
 # Deploy Nginx and check nginx
-- include: configNginx.yml
+#- include: configNginx.yml
 
 # Monitor Continer
-- include: monitorContainer.yml
+#- include: monitorContainer.yml
 
 
