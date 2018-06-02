@@ -1,88 +1,56 @@
 ---
 
-#- set_fact:
-#    nginx_base_directory: '/tmp/nginx'
-#    nginx_reverse_proxy_config_directory: "{{ nginx_base_directory }}/conf.d"
-#    nginx_container_name: 'nginx'
-#    nginx_docker_tag: '1.12.2'
-#    nginx_static_html_directory: 'defaults'
-#    nginx_reverse_proxy_proxies: []
-#    nginx_exposed_ports:
-#      - '80'
-#    nginx_published_ports:
-#      - '80:80'
-
 - name: include variables
   vars_files: all.yml
 
-
-#- include_tasks: RedHat.yml
-#  when: ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
-
-#- name: Install system requirements for docker-py
-#  package:
-#    name: "{{ item }}"
-#    state: present
-#  with_items: "{{ docker_py_deps }}"
-
-#- name: install docker-py requirement to manage containers
-#  pip:
-#    name: docker-py
-#    state: present
-
-- name: Create the directory on the host
+- name: "Create the {{ nginx_base_directory }} directory on the host"
+  become: yes
   file:
-    path: "/tmp/nginx"
+    path: "{{ nginx_base_directory }}"
     state: 'directory'
     mode: '0755'
-  become: yes
-  become_user: root
 
-- name: Put the nginx.conf file in place
+- name: 'Put the nginx.conf file in place'
+  become: yes
   copy:
-    src: "templates/default.conf"
+    content: "{{ nginx_conf }}"
     dest: "{{ nginx_base_directory }}/nginx.conf"
     mode: '0644'
   notify: 'restart-docker-nginx'
-  become: yes
-  become_user: root
 
-- name: "Copy the default html contents to  on the host"
+- name: "Copy the default html contents to {{ nginx_base_directory }}/defaults on the host"
+  become: yes
   copy:
-    src: "files/defaults"
-    dest: "/tmp/nginx/defaults"
+    src: "{{ nginx_static_html_directory }}/"
+    dest: "{{ nginx_base_directory }}/defaults"
     mode: '0644'
   notify: 'restart-docker-nginx'
-  become: yes
-  become_user: root
 
 - name: create directory for conf.d nginx
   file:
-    path: "/tmp/nginx/conf.d"
+    path: "{{ nginx_reverse_proxy_config_directory }}"
     state: directory
-  become: yes
-  become_user: root
 
 - name: deploy reverse proxy configurations
   template:
     src: reverse-proxy.conf.j2
-    dest: "/tmp/nginx/conf.d/{{ item.config_name }}.conf"
+    dest: "{{ nginx_reverse_proxy_config_directory }}/{{ item.config_name }}.conf"
   with_items: "{{ nginx_reverse_proxy_proxies }}"
   notify: 'restart-docker-nginx'
 
 - name: 'Start the nginx docker container'
   become: yes
   docker_container:
-    image: "nginx:1.12.2"
-    name: "nginx"
+    image: "nginx:{{ nginx_docker_tag }}"
+    name: "{{ nginx_container_name }}"
     volumes: '{{ nginx_exposed_volumes }}'
-    ports: 80
-    exposed_ports: '80:80'
+    ports: '{{ nginx_published_ports }}'
+    exposed_ports: '{{ nginx_exposed_ports }}'
     state: 'started'
     restart_policy: 'always'
     log_driver: 'syslog'
     log_options:
-      tag: "nginx"
+      tag: "{{ nginx_container_name }}"
 
 - meta: flush_handlers
 
