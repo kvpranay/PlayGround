@@ -1,8 +1,11 @@
 ---
 - name: setup environment config
   hosts: localhost
-  su: yes
-  su: root
-  roles:
-  - { role: confec }
   connection: local
+  gather_facts: false
+  user: root
+  pre_tasks:
+   - include_vars: ec2_vars/.yml
+  roles:
+   - confec
+
