@@ -1,87 +1,31 @@
 ---
 
-#- set_fact:
-#    nginx_base_directory: '/tmp/nginx'
-#    nginx_reverse_proxy_config_directory: "{{ nginx_base_directory }}/conf.d"
-#    nginx_container_name: 'nginx'
-#    nginx_docker_tag: '1.12.2'
-#    nginx_static_html_directory: 'defaults'
-#    nginx_reverse_proxy_proxies: []
-#    nginx_exposed_ports:
-#      - '80'
-#    nginx_published_ports:
-#      - '80:80'
-
-- name: load variables
-  set_fact:
-    nginx_exposed_volumes:
-      - "{{ nginx_base_directory }}/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - "{{ nginx_base_directory }}/defaults:/usr/share/nginx/html:ro"
-      - "{{ nginx_reverse_proxy_config_directory }}:/etc/nginx/conf.d:ro"
-
-#- include_tasks: RedHat.yml
-#  when: ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
-
-#- name: Install system requirements for docker-py
-#  package:
-#    name: "{{ item }}"
-#    state: present
-#  with_items: "{{ docker_py_deps }}"
-
-#- name: install docker-py requirement to manage containers
-#  pip:
-#    name: docker-py
-#    state: present
-
-- name: "Create the directory on the host"
-  become: yes
-  file:
-    path: "/tmp/nginx"
-    state: 'directory'
-    mode: '0755'
-
-- name: 'Put the nginx.conf file in place'
-  become: yes
-  copy:
-    src: "templates/default.conf"
-    dest: "{{ nginx_base_directory }}/nginx.conf"
-    mode: '0644'
-  notify: 'restart-docker-nginx'
-
-- name: "Copy the default html contents to  on the host"
-  become: yes
-  copy:
-    src: "files/defaults"
-    dest: "/tmp/nginx/defaults"
-    mode: '0644'
-  notify: 'restart-docker-nginx'
-
-- name: create directory for conf.d nginx
-  file:
-    path: "/tmp/nginx/conf.d"
-    state: directory
-
-- name: deploy reverse proxy configurations
-  template:
-    src: reverse-proxy.conf.j2
-    dest: "/tmp/nginx/conf.d/{{ item.config_name }}.conf"
-  with_items: "{{ nginx_reverse_proxy_proxies }}"
-  notify: 'restart-docker-nginx'
-
-- name: 'Start the nginx docker container'
-  become: yes
-  docker_container:
-    image: "nginx:1.12.2"
-    name: "nginx"
-    volumes: '{{ nginx_exposed_volumes }}'
-    ports: 80
-    exposed_ports: '80:80'
-    state: 'started'
-    restart_policy: 'always'
-    log_driver: 'syslog'
-    log_options:
-      tag: "nginx"
-
-- meta: flush_handlers
-
-- include_tasks: test.yml
+- name: Create Docker Container
+  hosts: localhost
+  connection: local  
+  remote_user: root
+  tasks:
+    - name: include variables
+      vars_files: vars.yml
+    - name: Create Container
+      docker_container:
+        name: "{{ name }}"
+        image: "{{ image }}"
+        ports:
+          - "{{ src_port }}:{{ dest_port }}"
+        volumes:
+          - "{{ src_vol }}:{{ dest_vol }}"
+        privileged: "{{ privileged }}"
+    - name: Create Systemd Unit File as docker-{{ name }}.service
+      template: src=systemd.j2 dest=/etc/systemd/system/docker-{{ name }}.service
+    - name: reload systemd daemon
+      command: systemctl daemon-reload 
+    - name: Start & Enable docker-{{ name }} service
+      service:
+        name: docker-{{ name }}
+        state: started
+        enabled: yes
+    - name: check container status
+      command: docker ps
+      register: result
+    - debug: var=result.stdout
