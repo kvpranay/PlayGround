@@ -1,7 +1,8 @@
 ---
 
-- hosts: all
-  remote_user: root
+- name: Configure Instance
+  hosts: launched
+  remote_user: ec2-user
   vars_files:
     - all.yml
 
@@ -20,7 +21,6 @@
        mode: '0644'
      become: yes
      become_user: root
-     notify: 'restart-docker-nginx'
 
    - name: Copy the default html
      copy:
@@ -29,7 +29,6 @@
        mode: '0644'
      become: yes
      become_user: root
-     notify: 'restart-docker-nginx'
 
    - name: create directory for conf.d nginx
      file:
@@ -45,7 +44,6 @@
      with_items: "{{ nginx_reverse_proxy_proxies }}"
      become: yes
      become_user: root
-     notify: 'restart-docker-nginx'
 
    - name: Start the nginx docker container
      docker_container:
@@ -61,7 +59,5 @@
          tag: "{{ nginx_container_name }}"
      become: yes
      become_user: root
-
-   - meta: flush_handlers
 
    - include_tasks: test.yml
