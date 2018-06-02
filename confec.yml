@@ -1,6 +1,6 @@
 ---
-- name: setup environment config
-  hosts: localhost
+
+- hosts: localhost
   connection: local
   gather_facts: false
   user: root
@@ -8,4 +8,3 @@
    - include_vars: group_vars/all.yml
   roles:
    - confec
-

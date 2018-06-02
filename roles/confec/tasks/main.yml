@@ -1,4 +1,8 @@
 ---
+- name: include variables
+  include_vars: 
+    file: group_vars/all.yml
+    name: groupvars
 
 # Provision and Configure EC2 Instance
 - include: configEc2.yml
