@@ -7,50 +7,60 @@
 
 - tasks:
    - file:
-       path: /tmp/nginx
+       path: "{{ nginx_base_directory }}"
        state: directory
        mode: 0755
      become: yes
      become_user: root
 
-- name: Put the nginx.conf file in place
-  copy:
-    content: "{{ nginx_conf }}"
-    dest: "{{ nginx_base_directory }}/nginx.conf"
-    mode: '0644'
-  notify: 'restart-docker-nginx'
+   - name: Put the nginx.conf file in place
+     copy:
+       content: "{{ nginx_conf }}"
+       dest: "{{ nginx_base_directory }}/nginx.conf"
+       mode: '0644'
+     become: yes
+     become_user: root
+     notify: 'restart-docker-nginx'
 
-- name: Copy the default html
-  copy:
-    src: "{{ nginx_static_html_directory }}/"
-    dest: "{{ nginx_base_directory }}/defaults"
-    mode: '0644'
-  notify: 'restart-docker-nginx'
+   - name: Copy the default html
+     copy:
+       src: "{{ nginx_static_html_directory }}/"
+       dest: "{{ nginx_base_directory }}/defaults"
+       mode: '0644'
+     become: yes
+     become_user: root
+     notify: 'restart-docker-nginx'
 
-- name: create directory for conf.d nginx
-  file:
-    path: "{{ nginx_reverse_proxy_config_directory }}"
-    state: directory
+   - name: create directory for conf.d nginx
+     file:
+       path: "{{ nginx_reverse_proxy_config_directory }}"
+       state: directory
+     become: yes
+     become_user: root
 
-- name: deploy reverse proxy configurations
-  template:
-    src: reverse-proxy.conf.j2
-    dest: "{{ nginx_reverse_proxy_config_directory }}/{{ item.config_name }}.conf"
-  with_items: "{{ nginx_reverse_proxy_proxies }}"
-  notify: 'restart-docker-nginx'
+   - name: deploy reverse proxy configurations
+     template:
+       src: reverse-proxy.conf.j2
+       dest: "{{ nginx_reverse_proxy_config_directory }}/{{ item.config_name }}.conf"
+     with_items: "{{ nginx_reverse_proxy_proxies }}"
+     become: yes
+     become_user: root
+     notify: 'restart-docker-nginx'
 
-- name: Start the nginx docker container
-  docker_container:
-    image: "nginx:{{ nginx_docker_tag }}"
-    name: "{{ nginx_container_name }}"
-    volumes: '{{ nginx_exposed_volumes }}'
-    ports: '{{ nginx_published_ports }}'
-    exposed_ports: '{{ nginx_exposed_ports }}'
-    state: 'started'
-    restart_policy: 'always'
-    log_driver: 'syslog'
-    log_options:
-      tag: "{{ nginx_container_name }}"
+   - name: Start the nginx docker container
+     docker_container:
+       image: "nginx:{{ nginx_docker_tag }}"
+       name: "{{ nginx_container_name }}"
+       volumes: '{{ nginx_exposed_volumes }}'
+       ports: '{{ nginx_published_ports }}'
+       exposed_ports: '{{ nginx_exposed_ports }}'
+       state: 'started'
+       restart_policy: 'always'
+       log_driver: 'syslog'
+       log_options:
+         tag: "{{ nginx_container_name }}"
+     become: yes
+     become_user: root
 
 - meta: flush_handlers
 
