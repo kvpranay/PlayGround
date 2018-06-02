@@ -3,8 +3,8 @@
   include_vars: 
     dir: group_vars
     extensions:
-	- yml
-	- json
+      - yml
+      - json
 
 # Provision and Configure EC2 Instance
 - include: configEc2.yml
