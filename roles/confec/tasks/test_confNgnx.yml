@@ -1,25 +1,26 @@
 ---
 
-- name: include variables
-  vars_files: all.yml
+- hosts: all
+  remote_user: root
+  vars_files:
+    - all.yml
 
-- name: "Create the {{ nginx_base_directory }} directory on the host"
-  become: yes
-  file:
-    path: "{{ nginx_base_directory }}"
-    state: 'directory'
-    mode: '0755'
+- tasks:
+   - file:
+       path: /tmp/nginx
+       state: directory
+       mode: 0755
+     become: yes
+     become_user: root
 
-- name: 'Put the nginx.conf file in place'
-  become: yes
+- name: Put the nginx.conf file in place
   copy:
     content: "{{ nginx_conf }}"
     dest: "{{ nginx_base_directory }}/nginx.conf"
     mode: '0644'
   notify: 'restart-docker-nginx'
 
-- name: "Copy the default html contents to {{ nginx_base_directory }}/defaults on the host"
-  become: yes
+- name: Copy the default html
   copy:
     src: "{{ nginx_static_html_directory }}/"
     dest: "{{ nginx_base_directory }}/defaults"
@@ -38,8 +39,7 @@
   with_items: "{{ nginx_reverse_proxy_proxies }}"
   notify: 'restart-docker-nginx'
 
-- name: 'Start the nginx docker container'
-  become: yes
+- name: Start the nginx docker container
   docker_container:
     image: "nginx:{{ nginx_docker_tag }}"
     name: "{{ nginx_container_name }}"
